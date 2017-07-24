@@ -1,0 +1,3 @@
+[submodule "libskylark"]
+	path = libskylark
+	url = https://github.com/xdata-skylark/libskylark.git
