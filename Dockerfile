@@ -27,6 +27,8 @@ RUN mv /install.sh ./install.sh && \
 
 RUN cp .bashrc /root/.bashrc
 
+RUN pip install -r ./testbench/requirements.txt
+
 
 # Define default command.
 CMD ["bash"]
