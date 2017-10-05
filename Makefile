@@ -6,3 +6,8 @@ build:
 	docker build -t sublinear .
 clean:
 	echo "TO DO- Cleanup"
+
+init:
+	pip install -r requirements.txt
+#test:
+#	py.test tests
