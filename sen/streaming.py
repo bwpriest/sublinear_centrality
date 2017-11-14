@@ -10,6 +10,8 @@ from tweepy.streaming import StreamListener
 from tweepy.api import API
 
 from sen.hash import TwoUnivHash
+from sen.util import _is_power2
+from sen.util import _next_power2
 
 class CSStreamListener(StreamListener):
     """
@@ -151,14 +153,3 @@ class CountSketch(object):
         """
         return self.n
 
-def _is_power2(m):
-    return m and not m & m-1
-
-def _next_power2(m):
-    m |= m >> 1
-    m |= m >> 2
-    m |= m >> 4
-    m |= m >> 8
-    m |= m >> 16
-    m |= m >> 32
-    return m + 1

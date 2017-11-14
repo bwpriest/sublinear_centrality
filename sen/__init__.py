@@ -6,11 +6,12 @@
 Sublinear Centrality API library
 """
 __version__ = '0.0.0'
-__author__ = 'Benjamin'
+__author__ = 'Benjamin W. Priest'
 __license__ = 'Apache'
 
 import sen.streaming
 import sen.hash
+import sen.util
 
 #from sen.streaming import CSStreamListener
 from tweepy.api import API
