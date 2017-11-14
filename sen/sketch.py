@@ -45,11 +45,13 @@ class CountSketch(object):
 
     def _hash(self, x):
         for i in xrange(self.d):
-            yield self.h[i].hash(x)
+            # Add 1 for 1-indexing
+            yield self.h[i].hash(x+1)
 
     def _orient(self, x):
         for i in xrange(self.d):
-            if self.g[i].hash(x):
+            # Add 1 for 1-indexing
+            if self.g[i].hash(x+1):
                 yield 1l
             else:
                 yield -1l
