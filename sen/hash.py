@@ -23,6 +23,7 @@ class TwoUnivHash(object):
         # Randonly sample a member of [2^u_ran]
         add = randint(2**u_ran)
         self.obj = lib.TwoUnivHash_new(mul, add, u_dom, u_ran)
+        self.max = 2**u_dom
 
     def members(self):
         """
@@ -34,4 +35,9 @@ class TwoUnivHash(object):
         """
         Return h(x) = (mul*x + add) mod 2^u_dom >> (u_dom - u_ran)
         """
+        if x >= self.max:
+            raise ValueError("Argument {} is not in domain [{}]"
+                             .format(x,self.max-1))
         return lib.TwoUnivHash_hash(self.obj, x)
+
+    
