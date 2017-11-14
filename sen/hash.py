@@ -2,6 +2,7 @@ import ctypes
 
 from numpy.random import randint
 
+# Multiply-Add-Shift hash family
 libmas = ctypes.cdll.LoadLibrary('/Users/priest/repos/sublinear_centrality/build/libmashash.so')
 
 class TwoUnivHash(object):
@@ -37,6 +38,6 @@ class TwoUnivHash(object):
         if x > self.max or x < 1:
             raise ValueError("Argument {} is not in domain [{}]"
                              .format(x,self.max-1))
-        return libmas.TwoUnivHash_hash(self.obj, x)
+        return libmas.TwoUnivHash_hash(self.obj, long(x))
 
     
