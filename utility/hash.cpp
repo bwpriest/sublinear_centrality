@@ -3,26 +3,26 @@
 
 using namespace std;
 
+typedef unsigned long ulong;
+
 // Implements sampling and applying a hash function 
 // h: [u_dom] -> [u_ran] from a 2-universal family 
 // using the multiply-add-shift scheme. 
 class TwoUnivHash
 {
 public:
-  TwoUnivHash(unsigned int, unsigned int, unsigned int, 
-	    unsigned int);
+  TwoUnivHash(ulong, ulong, ulong, ulong);
   void members();
-  unsigned int hash(unsigned int);
+  ulong hash(ulong);
 private:
-  unsigned int trunc;
-  unsigned int u_dom;
-  unsigned int u_ran;
-  unsigned int mul;
-  unsigned int add;
+  ulong trunc;
+  ulong u_dom;
+  ulong u_ran;
+  ulong mul;
+  ulong add;
 };
 
-TwoUnivHash::TwoUnivHash(unsigned int a, unsigned int b, 
-		     unsigned int n, unsigned int m)
+TwoUnivHash::TwoUnivHash(ulong a, ulong b, ulong n, ulong m)
 {
   mul = a;
   add = b;
@@ -40,7 +40,7 @@ void TwoUnivHash::members()
   std::cout << "trunc is " << trunc << std::endl;
 }
 
-unsigned int TwoUnivHash::hash(unsigned int x)
+ulong TwoUnivHash::hash(ulong x)
 {
   return (unsigned) ((mul*x + add) & trunc) >> (u_dom - u_ran);
 }
@@ -48,11 +48,10 @@ unsigned int TwoUnivHash::hash(unsigned int x)
 // Define C functions for the C++ class - as ctypes can only talk to C...
 extern "C"
 {
-  TwoUnivHash* TwoUnivHash_new(unsigned int a, unsigned int b, 
-			   unsigned int n, unsigned int m) 
+  TwoUnivHash* TwoUnivHash_new(ulong a, ulong b, ulong n, ulong m) 
   {
     return new TwoUnivHash(a,b,n,m);
   }
   void TwoUnivHash_members(TwoUnivHash* f) { f->members();}
-  unsigned int TwoUnivHash_hash(TwoUnivHash* f, unsigned int x) { return f->hash(x);}
+  ulong TwoUnivHash_hash(TwoUnivHash* f, ulong x) { return f->hash(x);}
 }
