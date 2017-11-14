@@ -11,5 +11,5 @@
 #test:
 #	py.test tests
 all:
-	g++ -c -fPIC utility/hash.cpp -o build/hash.o
-	g++ -shared -Wl,-install_name,libhash.so -o build/libhash.so  build/hash.o
+	g++ -c -fPIC utility/mashash.cpp -o build/mashash.o
+	g++ -shared -Wl,-install_name,libmashash.so -o build/libmashash.so  build/mashash.o
