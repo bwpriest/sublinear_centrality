@@ -1,15 +1,15 @@
 
 import array
 import logging
-import hashlib
+import numpy as np
 import os
 import re
 import scipy
 
-import sen.hash
-
 from tweepy.streaming import StreamListener
 from tweepy.api import API
+
+from sen.hash import TwoUnivHash
 
 class CSStreamListener(StreamListener):
     """
@@ -73,39 +73,52 @@ def split_iter(string, pattern):
 
 class CountSketch(object):
     """
-    Pure pythonic implementation of CountSketch. Creates a linear transform
-    equivalent to an (m*d) x n matrix with d nonzero entries per column. 
-    Includes a method for querying 
+    Pythonic implementation of CountSketch. Creates a linear transform equivalent 
+    to an (d*m) x n matrix with d nonzero entries per column. Includes a method for 
+    querying the accumulated estimator of an index's value. 
 
+    :param n: Dimension of frequency vector
     :param m: Dimension of hash tables
     :param d: Number of hash tables
-    :param n: Dimension of frequency list, if known
 
     *M. Charikar*, *K. Chen* and *M. Farach-Colton*, **Finding Frequent 
     Items in Data Streams**, Automata, Langauges, and Programming 2002
     """
 
-    def __init__(self, m, d, n = 0):
+    def __init__(self, n, m, d=1):
         """ 
         Initialize CountSketch data object, including coinflips and hash
         functions. 
         """
-        if not m or not d:
-            raise ValueError("Table size (m) and amount of hash functions (d)"
-                             " must be non-zero")
-        self.m = m
-        self.d = d
-        self.n = n
-        self.tables = []
-        for _ in xrange(d):
-            table = array.array("l", (0 for _ in xrange(m)))
-            self.tables.append(table)
+        if not n or not m or not d:
+            raise ValueError("Vector dimension (n), projection dimension (m) "
+                             "and number of parallel tables (d) must be non-zero")
+        if not _is_power2(m):
+            raise ValueError("Projection dimension (m) must be a power of two.")
+        
+        if _is_power2(n):
+            self.n = long(np.log2(n))
+        else:
+            self.n = long(np.log2(_next_power2(n)))
+        self.m = long(np.log2(m))
+        self.d = long(d)
+        self.sketches = np.zeros((d,m), dtype=long)
+        
+        self.h = np.array([TwoUnivHash(self.n, self.m) 
+                           for i in xrange(d)])
+        self.g = np.array([TwoUnivHash(self.n, 2l) 
+                           for i in xrange(d)])
 
     def _hash(self, x):
-        md5 = hashlib.md5(str(hash(x)))
         for i in xrange(self.d):
-            md5.update(str(i))
-            yield int(md5.hexdigest(), 16) % self.m
+            yield self.h[i].hash(x)
+
+    def _orient(self, x):
+        for i in xrange(self.d):
+            if self.g[i].hash(x):
+                yield 1l
+            else:
+                yield -1l
 
     def add(self, x, value=1):
         """
@@ -114,16 +127,16 @@ class CountSketch(object):
             sketch.add(x)
         Effectively updates `x` as occurring once.
         """
-        self.n += value
-        for table, i in zip(self.tables, self._hash(x)):
-            table[i] += value
+        for s, i, o in zip(self.sketches, self._hash(x), self._orient(x)):
+            s[i] += o*value
 
     def query(self, x):
         """
-        Return an estimation of the amount of times `x` has ocurred.
-        The returned value always overestimates the real value.
+        Return an estimation of the frequency index x.
+        The returned value comes from an unbiased estimator.
         """
-        return min(table[i] for table, i in zip(self.tables, self._hash(x)))
+        return np.median([o*s[i] for s, i, o 
+                   in zip(self.sketches, self._hash(x), self._orient(x))])
 
     def __getitem__(self, x):
         """
@@ -138,3 +151,14 @@ class CountSketch(object):
         """
         return self.n
 
+def _is_power2(m):
+    return m and not m & m-1
+
+def _next_power2(m):
+    m |= m >> 1
+    m |= m >> 2
+    m |= m >> 4
+    m |= m >> 8
+    m |= m >> 16
+    m |= m >> 32
+    return m + 1
