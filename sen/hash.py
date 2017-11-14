@@ -34,7 +34,7 @@ class TwoUnivHash(object):
         """
         Return h(x) = (mul*x + add) mod 2^u_dom >> (u_dom - u_ran)
         """
-        if x >= self.max:
+        if x > self.max or x < 1:
             raise ValueError("Argument {} is not in domain [{}]"
                              .format(x,self.max-1))
         return libmas.TwoUnivHash_hash(self.obj, x)
