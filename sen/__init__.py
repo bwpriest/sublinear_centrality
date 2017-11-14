@@ -9,8 +9,9 @@ __version__ = '0.0.0'
 __author__ = 'Benjamin W. Priest'
 __license__ = 'Apache'
 
-import sen.streaming
 import sen.hash
+import sen.sketch
+import sen.streaming
 import sen.util
 
 #from sen.streaming import CSStreamListener
